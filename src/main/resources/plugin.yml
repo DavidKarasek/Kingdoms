@@ -1,0 +1,51 @@
+name: ${artifactId}
+author: mythbusterma
+version: ${version}
+
+main: com.mythbusterma.parent.Kingdoms
+
+softdepend: Vault
+
+commands: 
+  king:
+    aliases: [kingdomadmin, ka, ruler]
+  kingdoms:
+    aliases: [k]
+    
+permissions:
+  kingdoms.king.*:
+    children:
+      kingdoms.king.ignite: true
+      kingdoms.king.build: true
+      kingdoms.king.enter: true
+  kingdoms.king.build:
+    default: op
+  kingdoms.king.ignite:
+    default: op
+  kingdoms.king.enter:
+    default: op
+  kingdoms.player.*:
+    children:
+      kingdoms.player.list: true
+      kingdoms.player.new: true
+      kingdoms.player.join: true
+      kingdoms.player.info: true
+  kingdoms.player.list:
+    default: true
+  kingdoms.player.new:
+    default: true
+  kingdoms.player.join:
+    default: true
+  kingdoms.player.info:
+    default: true
+  kingdoms.lord.*:
+    children:
+      kingdoms.lord.invite: true
+      kingdoms.lord.kick: true
+      kingdoms.lord.permissions: true
+  kingdoms.lord.invite:
+    default: true
+  kingdoms.lord.kick:
+    default: true
+  kingdoms.lord.permissions:
+    default: true
