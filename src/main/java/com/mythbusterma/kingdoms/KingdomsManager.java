@@ -6,13 +6,14 @@ import org.bukkit.entity.Player;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class KingdomsManager {
     
     private final Kingdoms parent;
     
     private Map<Player, KingdomPlayer> players = new WeakHashMap<>();
-    private Map<Integer, Village> villages = new HashMap<>();
+    private Map<Integer, Village> villages = new ConcurrentHashMap<>();
     
     private Map<ChunkLocation, VillageBlock> map = new HashMap<>();
 
@@ -58,5 +59,8 @@ public class KingdomsManager {
      */
     public void loadVillageBlock(VillageBlock block) {
         map.put(block.getLocation(), block);
+    }
+
+    public void addPlayer(KingdomPlayer kingdomPlayer) {
     }
 }

@@ -13,6 +13,7 @@ public class Configuration {
     private final String sqlPrefix;
     private final String sqlUser;
     private final int sqlPort;
+    private final boolean economy;
 
     public Configuration(Kingdoms parent) {
         ConfigurationSection config = parent.getConfig();
@@ -25,6 +26,7 @@ public class Configuration {
         sqlHost = parent.getConfig().getString("sql.host");
         sqlPort = parent.getConfig().getInt("sql.port");
         sqlPrefix = parent.getConfig().getString("sql.table-prefix");
+        economy = parent.getConfig().getBoolean("use-economy");
 
         // TODO make this work
         interval = 0;
@@ -69,5 +71,8 @@ public class Configuration {
 
     public int getUpkeep() {
         return upkeep;
+    }
+    public boolean isEconomy () {
+        return economy;
     }
 }

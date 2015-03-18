@@ -7,19 +7,23 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
+import org.bukkit.event.player.PlayerLoginEvent;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
 
 public class LoginListener implements Listener {
     
     private final Kingdoms parent;
     
-    private final HashMap<UUID,KingdomPlayer> loginCache;
+    private final Map<UUID,KingdomPlayer> loginCache;
 
     public LoginListener(Kingdoms parent) {
         this.parent = parent;
-        loginCache = new HashMap<>();
+        loginCache = new ConcurrentHashMap<>();
     }
     
     @EventHandler(priority = EventPriority.MONITOR)
@@ -35,7 +39,25 @@ public class LoginListener implements Listener {
             e.printStackTrace();
         }
         
-        loginCache.put(id, parent.getMySqlConnector().loadPlayer(id));
+        loginCache.put(id, parent.getMySqlConnector().loadPlayer(id, event.getName()));
+    }
 
+    @EventHandler(priority =  EventPriority.MONITOR)
+    public void onLogin(PlayerLoginEvent event) {
+        if (loginCache.get(event.getPlayer().getUniqueId()) == null) {
+            parent.getLogger().log(Level.SEVERE, "Failed to load player data, error LL1001");
+            return;
+        }
+
+        KingdomPlayer player = loginCache.get(event.getPlayer().getUniqueId());
+        player.setPlayer(event.getPlayer());
+
+        if (player.isNew()) {
+            player.getPlayer().sendMessage(Kingdoms.PREFIX + "Welcome to the server! This server uses Kingdoms for " +
+                    "protection of plots. To learn how to use this system, request the contextual help with " +
+                    "/kingdoms ? (/k ?)");
+        }
+
+        parent.getKingdomsManager().addPlayer(player);
     }
 }

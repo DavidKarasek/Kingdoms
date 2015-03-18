@@ -17,6 +17,7 @@ import java.util.logging.Level;
 public class Kingdoms extends JavaPlugin {
 
     public static final String PREFIX = ChatColor.AQUA + "[Kingdoms] " + ChatColor.RESET;
+    public static final String ERROR_PREFIX = PREFIX + ChatColor.RED + "Error: ";
     private static Kingdoms instance;
 
     private final HelpCommand helpCommand;
@@ -55,7 +56,6 @@ public class Kingdoms extends JavaPlugin {
             Bukkit.getLogger().log(Level.WARNING, "No Vault connection found for Kingdoms. Economy support will " +
                     "be disabled, claims will be free.");
         }
-
     }
 
     @Override
@@ -97,5 +97,9 @@ public class Kingdoms extends JavaPlugin {
 
     public Configuration getConfiguration() {
         return configuration;
+    }
+
+    public Economy getEconomy() {
+        return economy;
     }
 }

@@ -20,6 +20,8 @@ public class KingdomPlayer {
     
     private final UUID id;
 
+    private boolean newPlayer;
+
     public KingdomPlayer(UUID id) {
         this.id = id;
     }
@@ -43,5 +45,21 @@ public class KingdomPlayer {
 
     public void setLord(boolean lord) {
         this.lord = lord;
+    }
+
+    public void setNewPlayer () {
+        newPlayer = true;
+    }
+
+    public boolean isNew () {
+        return newPlayer;
+    }
+
+    public void setPlayer(Player player) {
+        this.player = new WeakReference<Player>(player);
+    }
+
+    public Player getPlayer() {
+        return player.get();
     }
 }
