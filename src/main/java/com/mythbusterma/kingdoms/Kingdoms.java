@@ -5,11 +5,9 @@ import com.mythbusterma.kingdoms.commands.KingCommandHandler;
 import com.mythbusterma.kingdoms.commands.KingdomCommand;
 import com.mythbusterma.kingdoms.listener.*;
 import com.mythbusterma.kingdoms.sql.MySQLConnector;
-import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.PluginManager;
-import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.logging.Level;
@@ -22,26 +20,31 @@ public class Kingdoms extends JavaPlugin {
 
     private final HelpCommand helpCommand;
     private final KingdomsManager kingdomsManager;
-    private final Configuration configuration;
+    private final UuidHolder holder = new UuidHolder();
+    private Configuration configuration;
     private MySQLConnector mySQLConnector;
-    private Economy economy;
+    private EconomyManager economyManager = null;
 
     public Kingdoms() {
         instance = this;
         helpCommand = new HelpCommand(this);
         kingdomsManager = new KingdomsManager(this);
-        configuration = new Configuration(this);
     }
 
     public static Kingdoms getInstance() {
         return instance;
     }
 
+    public UuidHolder getUuidHolder() {
+        return holder;
+    }
+
     @Override
     public void onEnable() {
         saveDefaultConfig();
-        mySQLConnector = new MySQLConnector(this);
+        configuration = new Configuration(this);
 
+        mySQLConnector = new MySQLConnector(this);
         PluginManager manager = Bukkit.getPluginManager();
         manager.registerEvents(new PlayerListener(this), this);
         manager.registerEvents(new LoginListener(this), this);
@@ -52,7 +55,9 @@ public class Kingdoms extends JavaPlugin {
         getCommand("king").setExecutor(new KingCommandHandler(this));
         getCommand("kingdoms").setExecutor(new KingdomCommand(this));
 
-        if (!setupEconomy()) {
+        if (getServer().getPluginManager().getPlugin("Vault") != null) {
+            this.economyManager = new EconomyManager(this);
+        } else {
             Bukkit.getLogger().log(Level.WARNING, "No Vault connection found for Kingdoms. Economy support will " +
                     "be disabled, claims will be free.");
         }
@@ -87,19 +92,12 @@ public class Kingdoms extends JavaPlugin {
         return helpCommand;
     }
 
-    private boolean setupEconomy() {
-        RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
-        if (economyProvider != null) {
-            economy = economyProvider.getProvider();
-        }
-        return (economy != null);
-    }
 
     public Configuration getConfiguration() {
         return configuration;
     }
 
-    public Economy getEconomy() {
-        return economy;
+    public EconomyManager getEconomy() {
+        return economyManager;
     }
 }

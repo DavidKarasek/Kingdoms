@@ -4,6 +4,7 @@ import com.avaje.ebean.validation.NotNull;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import com.mythbusterma.kingdoms.*;
 import org.bukkit.Bukkit;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.annotation.Nullable;
 import java.beans.PropertyVetoException;
@@ -11,15 +12,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Properties;
 import java.util.UUID;
 import java.util.logging.Level;
 
 
 public class MySQLConnector {
-
-    private final Kingdoms parent;
-
-    private final ComboPooledDataSource dataSource;
 
     private static final String PLAYERS_TABLE_SUFFIX = "_kingdom_players";
     //private static final String WORLDS_TABLE_SUFFIX = "_kingdom_worlds";
@@ -27,17 +25,25 @@ public class MySQLConnector {
     private static final String VILLAGEBLOCK_TABLE_SUFFIX = "_kingdom_townblocks";
     private static final String FRIENDS_TABLE_SUFFIX = "_kingdom_friends";
     private static final String METADATA_TABLE_SUFFIX = "_kingdom_metadata";
-
+    private static final String ENGINE = "ENGINE=INNODB";
+    private final Kingdoms parent;
+    private final ComboPooledDataSource dataSource;
     private final String PLAYERS_TABLE;
     //private final String WORLDS_TABLE;
     private final String VILLAGE_TABLE;
     private final String VILLAGEBLOCK_TABLE;
     private final String FRIENDS_TABLE;
     private final String METADATA_TABLE;
-    private static final String ENGINE = "ENGINE=INNODB";
 
     public MySQLConnector(Kingdoms parent) {
         this.parent = parent;
+
+
+        // disable the frankly annoying console output of C3P0
+        Properties p = new Properties(System.getProperties());
+        p.put("com.mchange.v2.log.MLog", "com.mchange.v2.log.FallbackMLog");
+        p.put("com.mchange.v2.log.FallbackMLog.DEFAULT_CUTOFF_LEVEL", "SEVERE");
+        System.setProperties(p);
 
         try {
             Class.forName("com.mysql.jdbc.Driver");
@@ -109,18 +115,26 @@ public class MySQLConnector {
                     "mob_spawn BOOL NOT NULL DEFAULT 0, " +
                     "fire_spread BOOL NOT NULL DEFAULT 0, " +
                     "pvp BOOL NOT NULL DEFAULT 0," +
-                    "num_chunks INT NOT NULL DEFAULT 0 " +
+                    "num_chunks BOOL NOT NULL DEFAULT 0," +
+                    "lava_flow BOOL NOT NULL DEFAULT 0," +
+                    "village_open BOOL NOT NULL DEFAULT 0," +
+                    "permissions INT NOT NULL" +
                     ") " + ENGINE);
 
+            examineSql(ps.toString());
+            ps.executeUpdate();
+
+            ps = conn.prepareStatement("INSERT IGNORE INTO " + VILLAGE_TABLE + " (village_id, village_name, balance) " +
+                    "VALUES (-1, '~~defaultville~~847392', -100)");
             examineSql(ps.toString());
             ps.executeUpdate();
 
             ps = conn.prepareStatement("CREATE TABLE IF NOT EXISTS " + PLAYERS_TABLE + " (" +
                     "uuid char(36) PRIMARY KEY," +
                     "name varchar(16) NOT NULL," +
-                    "village INT DEFAULT -1 NOT NULL," +
+                    "village INT DEFAULT -1," +
                     "lord BOOL DEFAULT FALSE NOT NULL," +
-                    "FOREIGN KEY (village) REFERENCES " + VILLAGE_TABLE + "(village_id) ON DELETE SET DEFAULT" +
+                    "FOREIGN KEY (village) REFERENCES " + VILLAGE_TABLE + "(village_id) ON DELETE SET NULL" +
                     ") " + ENGINE);
             examineSql(ps.toString());
             ps.executeUpdate();
@@ -146,6 +160,28 @@ public class MySQLConnector {
                         "CREATE TRIGGER chunk_updater AFTER INSERT ON " + VILLAGEBLOCK_TABLE + " FOR EACH ROW " +
                                 "BEGIN " +
                                 "UPDATE " + VILLAGE_TABLE + " SET num_chunks = num_chunks + 1 WHERE village_id = NEW.village_id;" +
+                                "END;");
+                examineSql(ps.toString());
+                ps.executeUpdate();
+            } catch (SQLException ex) {
+                if (ex.getErrorCode() != 1235) {
+                    throw ex;
+                }
+                // otherwise, swallow exception, it was expected
+            }
+
+            try {
+                ps = conn.prepareStatement(
+                        "CREATE TRIGGER integrity_check AFTER DELETE ON " + VILLAGE_TABLE + " FOR EACH ROW " +
+                                "BEGIN " +
+                                "DECLARE a char(36);" +
+                                "DECLARE cur1 CURSOR FOR SELECT uuid FROM " + PLAYERS_TABLE + " WHERE village IS NULL;" +
+                                "OPEN cur1;" +
+                                "read_loop: LOOP " +
+                                "FETCH cur1 INTO a;" +
+                                "UPDATE " + PLAYERS_TABLE + " SET village = -1 WHERE uuid = a;" +
+                                "END LOOP;" +
+                                "CLOSE cur1;" +
                                 "END;");
                 examineSql(ps.toString());
                 ps.executeUpdate();
@@ -185,6 +221,8 @@ public class MySQLConnector {
                     "mKey varchar(20) UNIQUE," +
                     "mValue varchar(20) NOT NULL)");
 
+            ps.executeUpdate();
+
             metadataDefaults(conn);
             loadTowns(conn);
 
@@ -193,24 +231,26 @@ public class MySQLConnector {
         }
     }
 
-    private void createTown(UUID creator, String name, ChunkLocation location) {
-
-    }
-
     private void loadTowns(Connection conn) throws SQLException {
         ResultSet rs = conn.prepareStatement("SELECT * FROM " + VILLAGE_TABLE).executeQuery();
         while (rs.next()) {
-            VillagePermissions permissions = new VillagePermissions();
+            //VillagePermissions permissions = new VillagePermissions();
             // TODO load village permissions
 
-            Village temp = new Village(rs.getInt(1), permissions);
+            if (rs.getInt(1) == -1) {
+                continue;
+            }
+
+            Village temp = new Village(rs.getInt(1), VillagePermissions.fromValue(rs.getInt("permissions")));
             temp.setName(rs.getString(2));
             temp.setBalance(rs.getDouble(3));
             temp.setMobSpawn(rs.getBoolean(4));
             temp.setFireSpread(rs.getBoolean(5));
             temp.setPvpAllowed(rs.getBoolean(6));
             temp.setNumChunks(rs.getInt(7));
-
+            temp.setLavaFlow(rs.getBoolean(8));
+            temp.setOpen(rs.getBoolean(9));
+            
             parent.getKingdomsManager().loadVillage(temp);
         }
 
@@ -219,11 +259,14 @@ public class MySQLConnector {
             PlotPermissions permissions = new PlotPermissions();
 
             // TODO load plotpermissions
-            VillageBlock temp = new VillageBlock(new ChunkLocation(rs.getInt(2), rs.getInt(2),
+            VillageBlock temp = new VillageBlock(new ChunkLocation(rs.getInt(2), rs.getInt(3),
                     UUID.fromString(rs.getString(4))), permissions,
                     parent.getKingdomsManager().getVillage(rs.getInt(1)));
+
             temp.setPrice(rs.getFloat(5));
-            temp.setOwner(UUID.fromString(rs.getString(6)));
+            if (rs.getString(6) != null) {
+                temp.setOwner(UUID.fromString(rs.getString(6)));
+            }
 
             parent.getKingdomsManager().loadVillageBlock(temp);
         }
@@ -231,13 +274,13 @@ public class MySQLConnector {
 
     private void metadataDefaults(Connection conn) throws SQLException {
         PreparedStatement ps = conn.prepareStatement("INSERT IGNORE INTO " + METADATA_TABLE
-                + " ('collection', ?)");
-        ps.setString(1, String.valueOf(System.currentTimeMillis()));
+                + " VALUES ('collection', ?)");
+        ps.setLong(1, System.currentTimeMillis());
         ps.executeUpdate();
     }
 
     private void examineSql(String sql) {
-        parent.getLogger().log(Level.INFO, "Executed: " + sql);
+        // parent.getLogger().log(Level.INFO, "Executed: " + sql);
 
     }
 
@@ -245,12 +288,15 @@ public class MySQLConnector {
         dataSource.close();
     }
 
+    /*
+
+     */
     @NotNull
     public KingdomPlayer loadPlayer(UUID id, String name) {
         KingdomPlayer retVal = null;
         try {
             Connection conn = dataSource.getConnection();
-            PreparedStatement ps = conn.prepareStatement("SELECT uuid FROM " + PLAYERS_TABLE + " WHERE uuid = ?");
+            PreparedStatement ps = conn.prepareStatement("SELECT * FROM " + PLAYERS_TABLE + " WHERE uuid = ?");
             ps.setString(1, id.toString());
             ResultSet rs = ps.executeQuery();
             boolean runOnce = false;
@@ -270,8 +316,7 @@ public class MySQLConnector {
                         if (rs.getBoolean("lord")) {
                             retVal.setLord(true);
                         }
-                    }
-                    else {
+                    } else {
                         sqlError("1002");
                         throw new SQLException("Didn't find a town for player " + id + " default to no town");
                     }
@@ -295,5 +340,116 @@ public class MySQLConnector {
 
     public void sqlError(String errorNo) {
         parent.getLogger().log(Level.SEVERE, "Detected severe SQL error, contact developer. Code: SQL" + errorNo);
+    }
+
+    /**
+     * Called when a village is created via command, runs asynchrnously
+     *
+     * @param uniqueId
+     * @param village
+     * @param newBlock
+     */
+    public void addVillage(final UUID uniqueId, final Village village, final VillageBlock newBlock) {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                try {
+                    Connection conn = dataSource.getConnection();
+                    conn.setAutoCommit(false);
+
+                    PreparedStatement ps = conn.prepareStatement("INSERT INTO " + VILLAGE_TABLE +
+                            " (village_name, balance, permissions) VALUES " +
+                            "(?,?, ?)");
+                    ps.setString(1, village.getName());
+                    ps.setDouble(2, village.getBalance());
+                    ps.setInt(3, village.getPermissions().getValue());
+                    ps.execute();
+                    ResultSet rs = conn.createStatement().executeQuery("SELECT LAST_INSERT_ID()");
+                    rs.next();
+                    int id = rs.getInt(1);
+                    village.setId(id);
+                    ps.close();
+
+                    ps = conn.prepareStatement("INSERT INTO " + VILLAGEBLOCK_TABLE + " " +
+                            " (village_id, x, z,world_id) VALUES (?,?,?, ?)");
+                    ps.setInt(1, id);
+                    ps.setInt(2, newBlock.getLocation().x);
+                    ps.setInt(3, newBlock.getLocation().z);
+                    ps.setString(4, newBlock.getLocation().world.toString());
+                    ps.execute();
+                    ps.close();
+
+                    ps = conn.prepareStatement("UPDATE " + PLAYERS_TABLE +
+                            " SET lord = TRUE, village = ? WHERE uuid = ?");
+                    ps.setInt(1, id);
+                    ps.setString(2, uniqueId.toString());
+                    ps.execute();
+
+                    conn.commit();
+
+                    parent.getKingdomsManager().addVillage(village);
+                } catch (SQLException e) {
+                    generateSqlError(e);
+                }
+            }
+        }.runTaskAsynchronously(parent);
+    }
+
+    public void addBlock(final VillageBlock block) {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                try {
+                    Connection conn = dataSource.getConnection();
+                    PreparedStatement ps = conn.prepareStatement("INSERT INTO " + VILLAGE_TABLE + " (village_id, x, z) " +
+                            "VALUES (?,?,?)");
+                    ps.setInt(1, block.getVillage().getId());
+                    ps.setInt(2, block.getLocation().x);
+                    ps.setInt(3, block.getLocation().z);
+                    ps.execute();
+
+                } catch (SQLException e) {
+                    generateSqlError(e);
+                }
+
+            }
+        }.runTaskAsynchronously(parent);
+    }
+
+    public void updateBalance(final int id, final double balance) {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                try {
+                    Connection conn = dataSource.getConnection();
+                    PreparedStatement ps = conn.prepareStatement("UPDATE " + VILLAGE_TABLE + " SET balance = ? WHERE " +
+                            "village_id = ?");
+                    ps.setDouble(1, balance);
+                    ps.setInt(2, id);
+                    ps.execute();
+                    ps.close();
+                } catch (SQLException e) {
+                    generateSqlError(e);
+                }
+            }
+        }.runTaskAsynchronously(parent);
+    }
+
+    public void deleteVillage(final int id) {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                try {
+                    Connection conn = dataSource.getConnection();
+                    PreparedStatement ps = conn.prepareStatement("DELETE FROM " + VILLAGE_TABLE + " WHERE village_id = ?");
+                    ps.setInt(1, id);
+                    ps.executeUpdate();
+                    ps.close();
+                    parent.getLogger().log(Level.INFO, "Town deleted: " + id);
+                } catch (SQLException e) {
+                    generateSqlError(e);
+                }
+            }
+        }.runTaskAsynchronously(parent);
     }
 }

@@ -62,11 +62,15 @@ public class HelpCommand {
                 }
                 if (locVillage != null) {
                     if (player.hasPermission("kingdoms.player.info")) {
-                        player.sendMessage(cf("k", "info", "", "Request information about the town underfoot," +
+                        player.sendMessage(cf("/k", "info", "", "Request information about the town underfoot, " +
                                 "currently " + ChatColor.ITALIC + locVillage.getName(), "/kingdoms"));
                     }
                 }
             }
+        }
+
+        if (sender.hasPermission("kingdoms.player.list")) {
+            sender.sendMessage(cf("/k","list","", "List all villages on the server.", "/kingdoms"));
         }
     }
 

@@ -1,5 +1,7 @@
 package com.mythbusterma.kingdoms;
 
+import org.bukkit.Location;
+
 import java.util.UUID;
 
 public class ChunkLocation {
@@ -16,6 +18,12 @@ public class ChunkLocation {
         this.world = world;
     }
 
+    public ChunkLocation(Location location) {
+        this.x = location.getBlockX() / 16;
+        this.z = location.getBlockZ() / 16;
+        this.world = location.getWorld().getUID();
+    }
+
     @Override
     public int hashCode() {
         return (x & POSITIVE_MASK) << 16 + (z & POSITIVE_MASK) + world.hashCode();
@@ -26,7 +34,7 @@ public class ChunkLocation {
         if (obj instanceof ChunkLocation) {
             ChunkLocation loc = (ChunkLocation) obj;
             if(loc.x == x && loc.z == z) {
-                if(loc.world == world) {
+                if(loc.world.equals(world)) {
                     return true;
                 }
             }

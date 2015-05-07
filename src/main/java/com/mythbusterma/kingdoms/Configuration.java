@@ -14,6 +14,10 @@ public class Configuration {
     private final String sqlUser;
     private final int sqlPort;
     private final boolean economy;
+    private final double defaultBalance;
+    private final int claimCost;
+    
+    private final Kingdoms parent;
 
     public Configuration(Kingdoms parent) {
         ConfigurationSection config = parent.getConfig();
@@ -27,7 +31,10 @@ public class Configuration {
         sqlPort = parent.getConfig().getInt("sql.port");
         sqlPrefix = parent.getConfig().getString("sql.table-prefix");
         economy = parent.getConfig().getBoolean("use-economy");
-
+        defaultBalance = parent.getConfig().getDouble("default-balance");
+        claimCost = parent.getConfig().getInt("claim-cost");
+    
+        this.parent = parent;
         // TODO make this work
         interval = 0;
 
@@ -73,6 +80,15 @@ public class Configuration {
         return upkeep;
     }
     public boolean isEconomy () {
-        return economy;
+        return economy && parent.getEconomy() != null;
+    }
+    
+    public double getDefaultBalance() {
+        return defaultBalance;
+    }
+    
+    public int getClaimCost () {
+        return claimCost;
+        
     }
 }

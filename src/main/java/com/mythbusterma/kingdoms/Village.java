@@ -2,28 +2,48 @@ package com.mythbusterma.kingdoms;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.util.Vector;
 
 public class Village {
     //private Set<UUID> lords;
 
-    private final int id;
+    private volatile int id;
     private final VillagePermissions permissions;
-    private String name;
-    private Vector spawn;
-    private float spawnYaw;
-    private float spawnPitch;
-    private String world;
-    private double balance;
-    private int numChunks;
-    private boolean pvpAllowed;
-    private boolean fireSpread;
-    private boolean mobSpawn;
-    private boolean lavaFlow;
+    private volatile String name;
+    private volatile Vector spawn;
+    private volatile float spawnYaw;
+    private volatile float spawnPitch;
+    private volatile String world;
+    private volatile double balance;
+    private volatile int numChunks;
+    private volatile boolean pvpAllowed = false;
+    private volatile boolean fireSpread = false;
+    private volatile boolean mobSpawn = false;
+    private volatile boolean lavaFlow = false;
+    private volatile boolean open = false;
 
     public Village(int id, VillagePermissions permissions) {
         this.id = id;
         this.permissions = permissions;
+    }
+
+    /**
+     * For use in building a Village for the first time, id field not set 
+     * @param name
+     */
+    public Village (String name, World world) {
+        this.name = name;
+        this.world = world.getName();
+        this.permissions = new VillagePermissions();
+    }
+
+    /**
+     * Should only be used by SQL classes
+     * @param id
+     */
+    public void setId (int id) {
+        this.id = id;
     }
 
     public boolean isPvpAllowed() {
@@ -56,7 +76,7 @@ public class Village {
     }
 
     public void setSpawn(Location loc) {
-        this.world = loc.getWorld().getName();
+        //this.world = loc.getWorld().getName();
         this.spawnPitch = loc.getPitch();
         this.spawnYaw = loc.getYaw();
         spawn = new Vector(loc.getX(), loc.getY(), loc.getZ());
@@ -123,5 +143,21 @@ public class Village {
 
     public void decrementChunks() {
         numChunks--;
+    }
+
+    public boolean isLavaFlow() {
+        return lavaFlow;
+    }
+
+    public void setLavaFlow(boolean lavaFlow) {
+        this.lavaFlow = lavaFlow;
+    }
+
+    public boolean isOpen() {
+        return open;
+    }
+
+    public void setOpen(boolean open) {
+        this.open = open;
     }
 }

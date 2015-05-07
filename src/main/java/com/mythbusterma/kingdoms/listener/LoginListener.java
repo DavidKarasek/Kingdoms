@@ -9,7 +9,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -38,18 +37,22 @@ public class LoginListener implements Listener {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        parent.getUuidHolder().addUser(id, event.getName());
         
         loginCache.put(id, parent.getMySqlConnector().loadPlayer(id, event.getName()));
     }
 
     @EventHandler(priority =  EventPriority.MONITOR)
     public void onLogin(PlayerLoginEvent event) {
-        if (loginCache.get(event.getPlayer().getUniqueId()) == null) {
+        if (loginCache.get(parent.getUuidHolder().getUuid(event.getPlayer().getName())) == null) {
             parent.getLogger().log(Level.SEVERE, "Failed to load player data, error LL1001");
+            parent.getLogger().log(Level.SEVERE, "ID was: " + event.getPlayer().getUniqueId() + " or "
+                    + parent.getUuidHolder().getUuid(event.getPlayer().getName()));
             return;
         }
 
-        KingdomPlayer player = loginCache.get(event.getPlayer().getUniqueId());
+        KingdomPlayer player = loginCache.get(parent.getUuidHolder().getUuid(event.getPlayer().getName()));
         player.setPlayer(event.getPlayer());
 
         if (player.isNew()) {
@@ -59,5 +62,6 @@ public class LoginListener implements Listener {
         }
 
         parent.getKingdomsManager().addPlayer(player);
+        loginCache.remove(event.getPlayer().getUniqueId());
     }
 }

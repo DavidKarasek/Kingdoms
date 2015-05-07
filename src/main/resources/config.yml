@@ -13,5 +13,7 @@ use-economy: true
 village-cost: 1000
 upkeep-cost: 100
 upkeep-interval: 12h
+default-balance: 100
+claim-cost: 100
 
 towns-reflect-damage: false

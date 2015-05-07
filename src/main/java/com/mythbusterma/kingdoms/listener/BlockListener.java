@@ -59,6 +59,9 @@ public class BlockListener implements Listener {
             event.getPlayer().sendMessage(Kingdoms.PREFIX + "You cannot build here!");
         }
         else if (!village.getPermissions().isResidentBuild()) {
+            if (parent.getKingdomsManager().getPlayer(event.getPlayer()).isLord()) {
+                return;
+            }
             event.setCancelled(true);
             event.getPlayer().sendMessage(Kingdoms.PREFIX + "Your lord does not allow you to build in the town!");
         }

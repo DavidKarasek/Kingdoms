@@ -2,9 +2,9 @@ name: ${artifactId}
 author: mythbusterma
 version: ${version}
 
-main: com.mythbusterma.parent.Kingdoms
+main: com.mythbusterma.kingdoms.Kingdoms
 
-softdepend: Vault
+softdepend: [Vault]
 
 commands: 
   king:
