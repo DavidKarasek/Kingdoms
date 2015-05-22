@@ -172,28 +172,6 @@ public class MySQLConnector {
 
             try {
                 ps = conn.prepareStatement(
-                        "CREATE TRIGGER integrity_check AFTER DELETE ON " + VILLAGE_TABLE + " FOR EACH ROW " +
-                                "BEGIN " +
-                                "DECLARE a char(36);" +
-                                "DECLARE cur1 CURSOR FOR SELECT uuid FROM " + PLAYERS_TABLE + " WHERE village IS NULL;" +
-                                "OPEN cur1;" +
-                                "read_loop: LOOP " +
-                                "FETCH cur1 INTO a;" +
-                                "UPDATE " + PLAYERS_TABLE + " SET village = -1 WHERE uuid = a;" +
-                                "END LOOP;" +
-                                "CLOSE cur1;" +
-                                "END;");
-                examineSql(ps.toString());
-                ps.executeUpdate();
-            } catch (SQLException ex) {
-                if (ex.getErrorCode() != 1235) {
-                    throw ex;
-                }
-                // otherwise, swallow exception, it was expected
-            }
-
-            try {
-                ps = conn.prepareStatement(
                         "CREATE TRIGGER chunk_updater_delete AFTER DELETE ON " + VILLAGEBLOCK_TABLE + " FOR EACH ROW " +
                                 "BEGIN " +
                                 "UPDATE " + VILLAGE_TABLE + " SET num_chunks = num_chunks -1 WHERE village_id = OLD.village_id;" +
@@ -422,6 +400,7 @@ public class MySQLConnector {
             public void run() {
                 try {
                     Connection conn = dataSource.getConnection();
+
                     PreparedStatement ps = conn.prepareStatement("UPDATE " + VILLAGE_TABLE + " SET balance = ? WHERE " +
                             "village_id = ?");
                     ps.setDouble(1, balance);
@@ -441,10 +420,16 @@ public class MySQLConnector {
             public void run() {
                 try {
                     Connection conn = dataSource.getConnection();
-                    PreparedStatement ps = conn.prepareStatement("DELETE FROM " + VILLAGE_TABLE + " WHERE village_id = ?");
+                    conn.setAutoCommit(false);
+                    PreparedStatement ps = conn.prepareStatement("UPDATE " + PLAYERS_TABLE + " SET village = -1 WHERE village = ?");
                     ps.setInt(1, id);
-                    ps.executeUpdate();
+                    ps.execute();
                     ps.close();
+                    ps = conn.prepareStatement("DELETE FROM " + VILLAGE_TABLE + " WHERE village_id = ?");
+                    ps.setInt(1, id);
+                    ps.execute();
+                    ps.close();
+                    conn.commit();
                     parent.getLogger().log(Level.INFO, "Town deleted: " + id);
                 } catch (SQLException e) {
                     generateSqlError(e);

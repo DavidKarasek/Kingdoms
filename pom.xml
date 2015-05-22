@@ -45,7 +45,50 @@
     </repositories>
 
     <build>
+        <extensions>
+            <extension>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-ssh</artifactId>
+                <version>2.8</version>
+            </extension>
+        </extensions>
         <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>wagon-maven-plugin</artifactId>
+                <version>1.0</version>
+                <executions>
+                    <execution>
+                        <id>upload</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>upload</goal>
+                        </goals>
+                        <configuration>
+                            <fromDir>./target/</fromDir>
+                            <includes>**-shaded.jar</includes>
+                            <url>scp://192.151.152.226</url>
+                            <serverId>testserver</serverId>
+                            <toDir>/home/testserver/plugins</toDir>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>restart</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>sshexec</goal>
+                        </goals>
+                        <configuration>
+                            <serverId>testserver</serverId>
+                            <url>scp://192.151.152.226/</url>
+                            <commands>
+                                <command>./stop.sh</command>
+                                <command>./start.sh</command>
+                            </commands>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>

@@ -52,7 +52,7 @@ public class HelpCommand {
                 if (playerInfo.isLord()) {
                     // display mayor commands
                     if (player.hasPermission("kingdoms.player.new")) {
-                        player.sendMessage(cf("/k", "disband/delete", "", "Permanently delete your town, cannot be undone",
+                        player.sendMessage(cf("/k", "disband/delete", "", "Permanently delete your village, cannot be undone",
                                 "/kingdoms"));
                     }
                     if (player.hasPermission("kingdoms.player.invite")) {
@@ -62,7 +62,7 @@ public class HelpCommand {
                 }
                 if (locVillage != null) {
                     if (player.hasPermission("kingdoms.player.info")) {
-                        player.sendMessage(cf("/k", "info", "", "Request information about the town underfoot, " +
+                        player.sendMessage(cf("/k", "info", "", "Request information about the village underfoot, " +
                                 "currently " + ChatColor.ITALIC + locVillage.getName(), "/kingdoms"));
                     }
                 }

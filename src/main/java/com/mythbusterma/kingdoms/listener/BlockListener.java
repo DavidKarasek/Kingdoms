@@ -34,7 +34,7 @@ public class BlockListener implements Listener {
         }
         else if (!village.getPermissions().isResidentBuild()) {
             event.setCancelled(true);
-            event.getPlayer().sendMessage(Kingdoms.PREFIX + "Your lord does not allow you to build in the town!");
+            event.getPlayer().sendMessage(Kingdoms.PREFIX + "Your lord does not allow you to build in the village!");
         }
         
         // TODO add plot support
@@ -63,7 +63,7 @@ public class BlockListener implements Listener {
                 return;
             }
             event.setCancelled(true);
-            event.getPlayer().sendMessage(Kingdoms.PREFIX + "Your lord does not allow you to build in the town!");
+            event.getPlayer().sendMessage(Kingdoms.PREFIX + "Your lord does not allow you to build in the village!");
         }
         // TODO add plot support
     }
@@ -89,7 +89,7 @@ public class BlockListener implements Listener {
                 if (!village.getPermissions().isResidentIgnite()) {
                     event.setCancelled(true);
                     event.getPlayer().sendMessage(Kingdoms.PREFIX 
-                            + "Your lord does not allow you to set fire in the town!");
+                            + "Your lord does not allow you to set fire in the village!");
                 }
             }
         }

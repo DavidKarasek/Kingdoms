@@ -55,6 +55,7 @@ public class KingdomCommand implements CommandExecutor {
                                                 parent.getKingdomsManager().addVillageBlock(newBlock);
                                                 parent.getMySqlConnector().addVillage(parent.getUuidHolder()
                                                         .getUuid(player.getName()), village, newBlock);
+                                                parent.getKingdomsManager().getPlayer(player).setVillage(village);
                                                 if (parent.getConfiguration().getUpkeep() != 0 && parent.getEconomy() != null) {
                                                     commandSender.sendMessage(Kingdoms.PREFIX + "Remember that villages require " +
                                                             "upkeep, and you must put money in the village coffers to keep the " +
@@ -146,7 +147,7 @@ public class KingdomCommand implements CommandExecutor {
                         } else {
                             player.sendMessage(Kingdoms.ERROR_PREFIX + "You must be a lord to claim land!");
                             return true;
-                            
+
                         }
                     } else {
                         player.sendMessage(Kingdoms.ERROR_PREFIX + "You do not belong to a village, you cannot claim land.");
@@ -239,7 +240,21 @@ public class KingdomCommand implements CommandExecutor {
                     player.sendMessage(Kingdoms.ERROR_PREFIX + "There is no action for you to accept!");
                     return true;
                 }
-            } 
+            } else if (args[0].equalsIgnoreCase("info")) {
+                if (player.hasPermission("kingdoms.info")) {
+                    Village village = parent.getKingdomsManager().getVillage(player.getLocation());
+                    if (village == null) {
+                        player.sendMessage(Kingdoms.ERROR_PREFIX + "There isn't a village underfoot, no info to display");
+                        return true;
+                    } else {
+                        player.sendMessage(Kingdoms.PREFIX + "You're standing in " + ChatColor.ITALIC + village.getName());
+                        // TODO add sql request for all residents
+                        player.sendMessage("Size (in chunks): " + village.getNumChunks());
+                        player.sendMessage("ID: " + village.getId());
+                        return true;
+                    }
+                }
+            }
         }
         if (args[0].equalsIgnoreCase("delete") || args[0].equalsIgnoreCase("disband")) {
             if (args.length == 1) {
@@ -255,8 +270,8 @@ public class KingdomCommand implements CommandExecutor {
                                     @Override
                                     public void run() {
                                         player.sendMessage(Kingdoms.PREFIX + "Deleting village....");
-                                        parent.getKingdomsManager().deleteVillage(village);
                                         parent.getMySqlConnector().deleteVillage(village.getId());
+                                        parent.getKingdomsManager().deleteVillage(village);
                                     }
                                 });
                                 return true;
@@ -266,7 +281,7 @@ public class KingdomCommand implements CommandExecutor {
                                 return true;
                             }
                         } else {
-                            player.sendMessage(Kingdoms.ERROR_PREFIX + "You are not part of a village, what are you" +
+                            player.sendMessage(Kingdoms.ERROR_PREFIX + "You are not part of a village, what are you " +
                                     "trying to disband?");
                             return true;
                         }
@@ -291,6 +306,8 @@ public class KingdomCommand implements CommandExecutor {
                 }
             }
         }
+        commandSender.sendMessage(Kingdoms.ERROR_PREFIX + "Command not recognized, try \"/k help\" for a list" +
+                "of commands.");
         return true;
     }
 }
