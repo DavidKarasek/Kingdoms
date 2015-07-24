@@ -19,12 +19,12 @@ import java.util.logging.Level;
 
 public class MySQLConnector {
 
-    private static final String PLAYERS_TABLE_SUFFIX = "_kingdom_players";
+    private static final String PLAYERS_TABLE_SUFFIX = "_players";
     //private static final String WORLDS_TABLE_SUFFIX = "_kingdom_worlds";
-    private static final String VILLAGE_TABLE_SUFFIX = "_kingdom_village";
-    private static final String VILLAGEBLOCK_TABLE_SUFFIX = "_kingdom_townblocks";
-    private static final String FRIENDS_TABLE_SUFFIX = "_kingdom_friends";
-    private static final String METADATA_TABLE_SUFFIX = "_kingdom_metadata";
+    private static final String VILLAGE_TABLE_SUFFIX = "_village";
+    private static final String VILLAGEBLOCK_TABLE_SUFFIX = "_townblocks";
+    private static final String FRIENDS_TABLE_SUFFIX = "_friends";
+    private static final String METADATA_TABLE_SUFFIX = "_metadata";
     private static final String ENGINE = "ENGINE=INNODB";
     private final Kingdoms parent;
     private final ComboPooledDataSource dataSource;
