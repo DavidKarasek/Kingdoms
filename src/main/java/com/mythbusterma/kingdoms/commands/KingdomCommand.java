@@ -205,28 +205,35 @@ public class KingdomCommand implements CommandExecutor {
                 }
             } else if (args[0].equalsIgnoreCase("list") || args[0].equalsIgnoreCase("l")) {
                 if (player.hasPermission("kingdoms.player.list")) {
-                    player.sendMessage(Kingdoms.PREFIX + "Villages: (your village appears in green, " +
-                            "villages open to the public in blue, others red)\n");
-                    StringBuilder builder = new StringBuilder();
-                    Village playerVillage = parent.getKingdomsManager().getPlayer(player).getVillage();
-                    for (Village village : parent.getKingdomsManager().getVillages()) {
-                        if (playerVillage != null) {
-                            if (village.equals(playerVillage)) {
-                                builder.append(ChatColor.GREEN);
+                    if (!parent.getKingdomsManager().getVillages().isEmpty()) {
+                        player.sendMessage(Kingdoms.PREFIX + "Villages: (your village appears in green, " +
+                                "villages open to the public in blue, others red)\n");
+                        StringBuilder builder = new StringBuilder();
+                        Village playerVillage = parent.getKingdomsManager().getPlayer(player).getVillage();
+                        for (Village village : parent.getKingdomsManager().getVillages()) {
+                            if (playerVillage != null) {
+                                if (village.equals(playerVillage)) {
+                                    builder.append(ChatColor.GREEN);
+                                }
+                            } else if (village.isOpen()) {
+                                builder.append(ChatColor.BLUE);
+                            } else {
+                                builder.append(ChatColor.DARK_RED);
                             }
-                        } else if (village.isOpen()) {
-                            builder.append(ChatColor.BLUE);
-                        } else {
-                            builder.append(ChatColor.DARK_RED);
+                            builder.append(village.getName());
+                            builder.append(", ");
                         }
-                        builder.append(village.getName());
-                        builder.append(", ");
-                    }
-                    builder.deleteCharAt(builder.length() - 1);
-                    builder.deleteCharAt(builder.length() - 1);
+                        builder.deleteCharAt(builder.length() - 1);
+                        builder.deleteCharAt(builder.length() - 1);
 
-                    player.sendMessage(builder.toString());
-                    return true;
+                        player.sendMessage(builder.toString());
+                        return true;
+                    }
+                    else {
+                        player.sendMessage(Kingdoms.PREFIX +"There aren't any villages on this server," +
+                                "perhaps you should create one! (/k new <name>)");
+                        return true;
+                    }
                 } else {
                     player.sendMessage(Kingdoms.ERROR_PREFIX + "You don't have permission to perform this command.");
                     return true;
@@ -306,7 +313,7 @@ public class KingdomCommand implements CommandExecutor {
                 }
             }
         }
-        commandSender.sendMessage(Kingdoms.ERROR_PREFIX + "Command not recognized, try \"/k help\" for a list" +
+        commandSender.sendMessage(Kingdoms.ERROR_PREFIX + "Command not recognized, try \"/k help\" for a list " +
                 "of commands.");
         return true;
     }

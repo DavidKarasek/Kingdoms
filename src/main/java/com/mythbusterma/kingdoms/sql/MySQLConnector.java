@@ -12,6 +12,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -19,17 +21,19 @@ import java.util.logging.Level;
 
 public class MySQLConnector {
 
-    private static final String PLAYERS_TABLE_SUFFIX = "_players";
-    //private static final String WORLDS_TABLE_SUFFIX = "_kingdom_worlds";
-    private static final String VILLAGE_TABLE_SUFFIX = "_village";
-    private static final String VILLAGEBLOCK_TABLE_SUFFIX = "_townblocks";
-    private static final String FRIENDS_TABLE_SUFFIX = "_friends";
-    private static final String METADATA_TABLE_SUFFIX = "_metadata";
+    private static final String PLAYERS_TABLE_SUFFIX = "players";
+    private static final String VILLAGE_TABLE_SUFFIX = "village";
+    private static final String VILLAGEBLOCK_TABLE_SUFFIX = "townblocks";
+    private static final String FRIENDS_TABLE_SUFFIX = "friends";
+    private static final String METADATA_TABLE_SUFFIX = "metadata";
     private static final String ENGINE = "ENGINE=INNODB";
+
+    public static final int MAX_IDLE_TIME = 1000;
+    public static final String PREFERRED_TEST_QUERY = "SELECT 1";
+
     private final Kingdoms parent;
     private final ComboPooledDataSource dataSource;
     private final String PLAYERS_TABLE;
-    //private final String WORLDS_TABLE;
     private final String VILLAGE_TABLE;
     private final String VILLAGEBLOCK_TABLE;
     private final String FRIENDS_TABLE;
@@ -38,6 +42,17 @@ public class MySQLConnector {
     public MySQLConnector(Kingdoms parent) {
         this.parent = parent;
 
+        String prefix = parent.getConfiguration().getSqlPrefix();
+
+        if (!prefix.equals("")) {
+            prefix += "_";
+        }
+
+        PLAYERS_TABLE = prefix + PLAYERS_TABLE_SUFFIX;
+        VILLAGE_TABLE = prefix + VILLAGE_TABLE_SUFFIX;
+        VILLAGEBLOCK_TABLE = prefix + VILLAGEBLOCK_TABLE_SUFFIX;
+        FRIENDS_TABLE = prefix + FRIENDS_TABLE_SUFFIX;
+        METADATA_TABLE = prefix + METADATA_TABLE_SUFFIX;
 
         // disable the frankly annoying console output of C3P0
         Properties p = new Properties(System.getProperties());
@@ -54,14 +69,11 @@ public class MySQLConnector {
 
         dataSource = new ComboPooledDataSource();
 
-        String prefix = parent.getConfiguration().getSqlPrefix();
+        dataSource.setMaxIdleTime(MAX_IDLE_TIME);
+        dataSource.setTestConnectionOnCheckin(true);
+        dataSource.setTestConnectionOnCheckout(true);
 
-        PLAYERS_TABLE = prefix + PLAYERS_TABLE_SUFFIX;
-        //WORLDS_TABLE = prefix + WORLDS_TABLE_SUFFIX;
-        VILLAGE_TABLE = prefix + VILLAGE_TABLE_SUFFIX;
-        VILLAGEBLOCK_TABLE = prefix + VILLAGEBLOCK_TABLE_SUFFIX;
-        FRIENDS_TABLE = prefix + FRIENDS_TABLE_SUFFIX;
-        METADATA_TABLE = prefix + METADATA_TABLE_SUFFIX;
+        dataSource.setPreferredTestQuery(PREFERRED_TEST_QUERY);
 
         try {
             dataSource.setDriverClass("com.mysql.jdbc.Driver");

@@ -29,7 +29,7 @@ public class Configuration {
         sqlPass = parent.getConfig().getString("sql.password");
         sqlHost = parent.getConfig().getString("sql.host");
         sqlPort = parent.getConfig().getInt("sql.port");
-        sqlPrefix = parent.getConfig().getString("sql.table-prefix");
+        sqlPrefix = parent.getConfig().getString("sql.table-prefix", "");
         economy = parent.getConfig().getBoolean("use-economy");
         defaultBalance = parent.getConfig().getDouble("default-balance");
         claimCost = parent.getConfig().getInt("claim-cost");
