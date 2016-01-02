@@ -27,16 +27,19 @@ permissions:
   kingdoms.player.*:
     children:
       kingdoms.player.list: true
-      kingdoms.player.new: true
+      kingdoms.player.create: true
       kingdoms.player.join: true
       kingdoms.player.info: true
+      kingdoms.player.claim: true
   kingdoms.player.list:
     default: true
-  kingdoms.player.new:
+  kingdoms.player.create:
     default: true
   kingdoms.player.join:
     default: true
   kingdoms.player.info:
+    default: true
+  kingdoms.player.claim:
     default: true
   kingdoms.lord.*:
     children:

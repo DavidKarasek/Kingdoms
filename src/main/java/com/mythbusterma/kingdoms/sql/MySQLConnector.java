@@ -1,8 +1,8 @@
 package com.mythbusterma.kingdoms.sql;
 
 import com.avaje.ebean.validation.NotNull;
-import com.mchange.v2.c3p0.ComboPooledDataSource;
 import com.mythbusterma.kingdoms.*;
+import com.zaxxer.hikari.HikariConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -12,8 +12,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -32,7 +30,6 @@ public class MySQLConnector {
     public static final String PREFERRED_TEST_QUERY = "SELECT 1";
 
     private final Kingdoms parent;
-    private final ComboPooledDataSource dataSource;
     private final String PLAYERS_TABLE;
     private final String VILLAGE_TABLE;
     private final String VILLAGEBLOCK_TABLE;
@@ -54,11 +51,7 @@ public class MySQLConnector {
         FRIENDS_TABLE = prefix + FRIENDS_TABLE_SUFFIX;
         METADATA_TABLE = prefix + METADATA_TABLE_SUFFIX;
 
-        // disable the frankly annoying console output of C3P0
-        Properties p = new Properties(System.getProperties());
-        p.put("com.mchange.v2.log.MLog", "com.mchange.v2.log.FallbackMLog");
-        p.put("com.mchange.v2.log.FallbackMLog.DEFAULT_CUTOFF_LEVEL", "SEVERE");
-        System.setProperties(p);
+
 
         try {
             Class.forName("com.mysql.jdbc.Driver");
@@ -67,13 +60,12 @@ public class MySQLConnector {
             throw new NoClassDefFoundError();
         }
 
-        dataSource = new ComboPooledDataSource();
+        HikariConfig config = new HikariConfig();
 
-        dataSource.setMaxIdleTime(MAX_IDLE_TIME);
-        dataSource.setTestConnectionOnCheckin(true);
-        dataSource.setTestConnectionOnCheckout(true);
-
-        dataSource.setPreferredTestQuery(PREFERRED_TEST_QUERY);
+        config.setJdbcUrl("jdbc:mysql://" + parent.getConfiguration().getSqlHost() + ":"
+                + parent.getConfiguration().getSqlPort() + "/" + parent.getConfiguration().getSqlDatabase());
+        config.setUsername(parent.getConfiguration().getSqlUser());
+        config.setPassword(parent.getConfiguration().getSqlPass());
 
         try {
             dataSource.setDriverClass("com.mysql.jdbc.Driver");

@@ -2,7 +2,7 @@ package com.mythbusterma.kingdoms;
 
 import com.mythbusterma.kingdoms.commands.HelpCommand;
 import com.mythbusterma.kingdoms.commands.KingCommandHandler;
-import com.mythbusterma.kingdoms.commands.KingdomCommand;
+import com.mythbusterma.kingdoms.commands.KingdomCommandManager;
 import com.mythbusterma.kingdoms.listener.*;
 import com.mythbusterma.kingdoms.sql.MySQLConnector;
 import org.bukkit.Bukkit;
@@ -18,7 +18,6 @@ public class Kingdoms extends JavaPlugin {
     public static final String ERROR_PREFIX = PREFIX + ChatColor.RED + "Error: ";
     private static Kingdoms instance;
 
-    private final HelpCommand helpCommand;
     private final KingdomsManager kingdomsManager;
     private final UuidHolder holder = new UuidHolder();
     private Configuration configuration;
@@ -27,7 +26,6 @@ public class Kingdoms extends JavaPlugin {
 
     public Kingdoms() {
         instance = this;
-        helpCommand = new HelpCommand(this);
         kingdomsManager = new KingdomsManager(this);
     }
 
@@ -53,7 +51,7 @@ public class Kingdoms extends JavaPlugin {
         manager.registerEvents(new EntityListener(this), this);
 
         getCommand("king").setExecutor(new KingCommandHandler(this));
-        getCommand("kingdoms").setExecutor(new KingdomCommand(this));
+        getCommand("kingdoms").setExecutor(new KingdomCommandManager(this));
 
         if (getServer().getPluginManager().getPlugin("Vault") != null) {
             this.economyManager = new EconomyManager(this);
@@ -87,11 +85,6 @@ public class Kingdoms extends JavaPlugin {
     public MySQLConnector getMySqlConnector() {
         return mySQLConnector;
     }
-
-    public HelpCommand getHelpCommand() {
-        return helpCommand;
-    }
-
 
     public Configuration getConfiguration() {
         return configuration;
