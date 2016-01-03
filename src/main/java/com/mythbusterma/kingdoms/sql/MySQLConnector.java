@@ -3,6 +3,7 @@ package com.mythbusterma.kingdoms.sql;
 import com.avaje.ebean.validation.NotNull;
 import com.mythbusterma.kingdoms.*;
 import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -28,6 +29,8 @@ public class MySQLConnector {
 
     public static final int MAX_IDLE_TIME = 1000;
     public static final String PREFERRED_TEST_QUERY = "SELECT 1";
+
+    private final HikariDataSource dataSource;
 
     private final Kingdoms parent;
     private final String PLAYERS_TABLE;
@@ -67,15 +70,7 @@ public class MySQLConnector {
         config.setUsername(parent.getConfiguration().getSqlUser());
         config.setPassword(parent.getConfiguration().getSqlPass());
 
-        try {
-            dataSource.setDriverClass("com.mysql.jdbc.Driver");
-            dataSource.setJdbcUrl("jdbc:mysql://" + parent.getConfiguration().getSqlHost() + ":"
-                    + parent.getConfiguration().getSqlPort() + "/" + parent.getConfiguration().getSqlDatabase());
-            dataSource.setUser(parent.getConfiguration().getSqlUser());
-            dataSource.setPassword(parent.getConfiguration().getSqlPass());
-        } catch (PropertyVetoException e) {
-            e.printStackTrace();
-        }
+        dataSource = new HikariDataSource(config);
 
         try {
             dataSource.getConnection().createStatement().execute("SELECT 1");
