@@ -3,6 +3,7 @@ package com.mythbusterma.kingdoms;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 public class Village {
@@ -159,5 +160,11 @@ public class Village {
 
     public void setOpen(boolean open) {
         this.open = open;
+    }
+
+    public void spawnPlayer(Player player) {
+        Location loc = new Location(Bukkit.getWorld(world), spawn.getX(),
+                spawn.getY(), spawn.getZ(), spawnYaw, spawnPitch);
+        player.teleport(loc);
     }
 }

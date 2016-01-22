@@ -31,6 +31,7 @@ permissions:
       kingdoms.player.join: true
       kingdoms.player.info: true
       kingdoms.player.claim: true
+      kingdoms.player.spawn: true
   kingdoms.player.list:
     default: true
   kingdoms.player.create:
@@ -41,14 +42,19 @@ permissions:
     default: true
   kingdoms.player.claim:
     default: true
+  kingdoms.player.spawn:
+    default: true
   kingdoms.lord.*:
     children:
       kingdoms.lord.invite: true
       kingdoms.lord.kick: true
       kingdoms.lord.permissions: true
+      kingdoms.lord.setspawn: true
   kingdoms.lord.invite:
     default: true
   kingdoms.lord.kick:
     default: true
   kingdoms.lord.permissions:
+    default: true
+  kingdoms.lord.setspawn:
     default: true

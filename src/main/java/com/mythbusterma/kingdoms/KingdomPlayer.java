@@ -62,4 +62,19 @@ public class KingdomPlayer {
     public Player getPlayer() {
         return player.get();
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof KingdomPlayer) {
+            if (((KingdomPlayer) obj).getUniqueId().equals(this.id)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return this.id.hashCode();
+    }
 }

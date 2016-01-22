@@ -1,7 +1,9 @@
-package com.mythbusterma.kingdoms.commands;
+package com.mythbusterma.kingdoms.commands.kingdom;
 
 
 import com.mythbusterma.kingdoms.*;
+import com.mythbusterma.kingdoms.commands.CommandResult;
+import com.mythbusterma.kingdoms.commands.PlayerCommand;
 import org.bukkit.entity.Player;
 
 public class ClaimCommand implements PlayerCommand {

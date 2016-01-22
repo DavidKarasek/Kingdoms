@@ -1,4 +1,4 @@
-package com.mythbusterma.kingdoms.commands;
+package com.mythbusterma.kingdoms.commands.king;
 
 import com.mythbusterma.kingdoms.Kingdoms;
 import org.bukkit.command.Command;

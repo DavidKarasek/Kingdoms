@@ -2,18 +2,20 @@
 
 sql:
   driver: MySQL
-  database-name: parent
-  table-prefix: parent
+  database-name: kingdoms
+  table-prefix:
   user: sqluser
-  password: somepass
-  host: 127.0.0.1
+  password:
+  host: localhost
   port: 3306
 
 use-economy: true
 village-cost: 1000
 upkeep-cost: 100
 upkeep-interval: 12h
-default-balance: 100
+default-village-balance: 100
 claim-cost: 100
+
+teleport-delay: 5
 
 towns-reflect-damage: false

@@ -1,8 +1,10 @@
-package com.mythbusterma.kingdoms.commands;
+package com.mythbusterma.kingdoms.commands.kingdom;
 
 import com.mythbusterma.kingdoms.KingdomPlayer;
 import com.mythbusterma.kingdoms.Kingdoms;
 import com.mythbusterma.kingdoms.Village;
+import com.mythbusterma.kingdoms.commands.CommandResult;
+import com.mythbusterma.kingdoms.commands.KingdomCommand;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -33,7 +35,7 @@ public class HelpCommand implements KingdomCommand<CommandSender> {
 
         if (plyVillage == null) {
             if (locVillage == null) {
-                if (player.hasPermission("kingdoms.player.new")) {
+                if (player.hasPermission("kingdoms.player.create")) {
                     player.sendMessage(cf("/k", "new <name>", "", "Create a new village with the " +
                             "current chunk being the start of the claim", "/kingdoms"));
                 }
@@ -51,7 +53,7 @@ public class HelpCommand implements KingdomCommand<CommandSender> {
             KingdomPlayer playerInfo = parent.getParent().getKingdomsManager().getPlayer(player);
             if (playerInfo.isLord()) {
                 // display mayor commands
-                if (player.hasPermission("kingdoms.player.new")) {
+                if (player.hasPermission("kingdoms.player.create")) {
                     player.sendMessage(cf("/k", "disband/delete", "", "Permanently delete your village, cannot be undone",
                             "/kingdoms"));
                 }

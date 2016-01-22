@@ -1,8 +1,7 @@
 package com.mythbusterma.kingdoms;
 
-import com.mythbusterma.kingdoms.commands.HelpCommand;
-import com.mythbusterma.kingdoms.commands.KingCommandHandler;
-import com.mythbusterma.kingdoms.commands.KingdomCommandManager;
+import com.mythbusterma.kingdoms.commands.king.KingCommandHandler;
+import com.mythbusterma.kingdoms.commands.kingdom.KingdomCommandManager;
 import com.mythbusterma.kingdoms.listener.*;
 import com.mythbusterma.kingdoms.sql.MySQLConnector;
 import org.bukkit.Bukkit;
@@ -19,7 +18,9 @@ public class Kingdoms extends JavaPlugin {
     private static Kingdoms instance;
 
     private final KingdomsManager kingdomsManager;
+    private PlayerMovementWatcher playerMovementWatcher;
     private final UuidHolder holder = new UuidHolder();
+    private final InviteManager inviteManager = new InviteManager(this);
     private Configuration configuration;
     private MySQLConnector mySQLConnector;
     private EconomyManager economyManager = null;
@@ -41,6 +42,7 @@ public class Kingdoms extends JavaPlugin {
     public void onEnable() {
         saveDefaultConfig();
         configuration = new Configuration(this);
+        playerMovementWatcher = new PlayerMovementWatcher(this);
 
         mySQLConnector = new MySQLConnector(this);
         PluginManager manager = Bukkit.getPluginManager();
@@ -49,6 +51,7 @@ public class Kingdoms extends JavaPlugin {
         manager.registerEvents(new LogoutListener(this), this);
         manager.registerEvents(new BlockListener(this), this);
         manager.registerEvents(new EntityListener(this), this);
+        manager.registerEvents(playerMovementWatcher, this);
 
         getCommand("king").setExecutor(new KingCommandHandler(this));
         getCommand("kingdoms").setExecutor(new KingdomCommandManager(this));
@@ -92,5 +95,13 @@ public class Kingdoms extends JavaPlugin {
 
     public EconomyManager getEconomy() {
         return economyManager;
+    }
+
+    public InviteManager getInviteManager() {
+        return inviteManager;
+    }
+
+    public PlayerMovementWatcher getPlayerMovementWatcher() {
+        return playerMovementWatcher;
     }
 }

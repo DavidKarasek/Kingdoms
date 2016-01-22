@@ -1,7 +1,9 @@
-package com.mythbusterma.kingdoms.commands;
+package com.mythbusterma.kingdoms.commands.kingdom;
 
 import com.mythbusterma.kingdoms.Kingdoms;
 import com.mythbusterma.kingdoms.Village;
+import com.mythbusterma.kingdoms.commands.CommandResult;
+import com.mythbusterma.kingdoms.commands.PlayerCommand;
 import org.bukkit.entity.Player;
 
 public class DepositCommand implements PlayerCommand {
@@ -14,7 +16,7 @@ public class DepositCommand implements PlayerCommand {
 
     @Override
     public CommandResult issue(Player player, String[] args) {
-        Village village = parent.getParent().getKingdomsManager().getPlayer(player).getVillage();
+        Village village = parent.getVillage(player);
         if (village != null) {
             double amount = 0;
 

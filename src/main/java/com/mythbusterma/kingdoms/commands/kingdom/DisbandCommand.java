@@ -1,7 +1,9 @@
-package com.mythbusterma.kingdoms.commands;
+package com.mythbusterma.kingdoms.commands.kingdom;
 
 import com.mythbusterma.kingdoms.Kingdoms;
 import com.mythbusterma.kingdoms.Village;
+import com.mythbusterma.kingdoms.commands.CommandResult;
+import com.mythbusterma.kingdoms.commands.KingdomCommand;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
