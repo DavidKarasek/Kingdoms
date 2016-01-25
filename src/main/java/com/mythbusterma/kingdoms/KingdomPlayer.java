@@ -56,7 +56,7 @@ public class KingdomPlayer {
     }
 
     public void setPlayer(Player player) {
-        this.player = new WeakReference<Player>(player);
+        this.player = new WeakReference<>(player);
     }
 
     public Player getPlayer() {

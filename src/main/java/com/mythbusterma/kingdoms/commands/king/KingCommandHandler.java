@@ -1,22 +1,32 @@
 package com.mythbusterma.kingdoms.commands.king;
 
 import com.mythbusterma.kingdoms.Kingdoms;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
+import com.mythbusterma.kingdoms.commands.BaseCommandExecutor;
 
+/**
+ * This is the command handler for all the "admin" commands
+ */
+public class KingCommandHandler extends BaseCommandExecutor {
 
-public class KingCommandHandler implements CommandExecutor {
-    
+    private final Subcommand noArgsCommand;
     private Kingdoms kingdoms;
-    
-    public KingCommandHandler(Kingdoms kingdoms) {
-        this.kingdoms = kingdoms;
-    }
 
     @Override
-    public boolean onCommand(CommandSender commandSender, Command command, String cmd, String[] args) {
-        
-        return false;
+    protected Subcommand getNoArgsCommand() {
+        return noArgsCommand;
+    }
+
+    public KingCommandHandler(Kingdoms kingdoms) {
+        super(kingdoms);
+        this.kingdoms = kingdoms;
+
+        noArgsCommand = registerSubcommand(new KingHelpCommand(this),
+                null, 0, "?", "help", "wtf", "h");
+
+        registerSubcommand(new KingDisbandCommand(this),
+                "kingdoms.king.delete", 1, "disband", "delete", "remove");
+
+        registerSubcommand(new KingAddCommand(this),
+                "kingdoms.king.add", 2, "add", "forceadd", "a", "put");
     }
 }

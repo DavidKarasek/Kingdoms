@@ -20,7 +20,7 @@ public enum TownProtection {
     
     private final int id;
     
-    private TownProtection(int id) {
+    TownProtection(int id) {
         this.id = id;
         
     }

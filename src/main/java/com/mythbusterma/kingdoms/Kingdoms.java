@@ -2,6 +2,7 @@ package com.mythbusterma.kingdoms;
 
 import com.mythbusterma.kingdoms.commands.king.KingCommandHandler;
 import com.mythbusterma.kingdoms.commands.kingdom.KingdomCommandManager;
+import com.mythbusterma.kingdoms.commands.lord.LordCommand;
 import com.mythbusterma.kingdoms.listener.*;
 import com.mythbusterma.kingdoms.sql.MySQLConnector;
 import org.bukkit.Bukkit;
@@ -18,12 +19,15 @@ public class Kingdoms extends JavaPlugin {
     private static Kingdoms instance;
 
     private final KingdomsManager kingdomsManager;
-    private PlayerMovementWatcher playerMovementWatcher;
     private final UuidHolder holder = new UuidHolder();
     private final InviteManager inviteManager = new InviteManager(this);
+    private PlayerMovementWatcher playerMovementWatcher;
     private Configuration configuration;
     private MySQLConnector mySQLConnector;
     private EconomyManager economyManager = null;
+    private KingdomCommandManager kingdomCommandManager;
+    private LordCommand lordCommandHandler;
+    private KingCommandHandler kingCommandHandler;
 
     public Kingdoms() {
         instance = this;
@@ -32,6 +36,31 @@ public class Kingdoms extends JavaPlugin {
 
     public static Kingdoms getInstance() {
         return instance;
+    }
+
+    public KingdomCommandManager getKingdomCommandManager() {
+        return kingdomCommandManager;
+    }
+
+    public void setKingdomCommandManager(
+            KingdomCommandManager kingdomCommandManager) {
+        this.kingdomCommandManager = kingdomCommandManager;
+    }
+
+    public LordCommand getLordCommandHandler() {
+        return lordCommandHandler;
+    }
+
+    public void setLordCommandHandler(LordCommand lordCommandHandler) {
+        this.lordCommandHandler = lordCommandHandler;
+    }
+
+    public KingCommandHandler getKingCommandHandler() {
+        return kingCommandHandler;
+    }
+
+    public void setKingCommandHandler(KingCommandHandler kingCommandHandler) {
+        this.kingCommandHandler = kingCommandHandler;
     }
 
     public UuidHolder getUuidHolder() {
@@ -53,14 +82,20 @@ public class Kingdoms extends JavaPlugin {
         manager.registerEvents(new EntityListener(this), this);
         manager.registerEvents(playerMovementWatcher, this);
 
-        getCommand("king").setExecutor(new KingCommandHandler(this));
-        getCommand("kingdoms").setExecutor(new KingdomCommandManager(this));
+        kingCommandHandler = new KingCommandHandler(this);
+        lordCommandHandler = new LordCommand(this);
+        kingdomCommandManager = new KingdomCommandManager(this);
+
+        getCommand("king").setExecutor(kingCommandHandler);
+        getCommand("kingdoms").setExecutor(kingdomCommandManager);
+        getCommand("lord").setExecutor(lordCommandHandler);
 
         if (getServer().getPluginManager().getPlugin("Vault") != null) {
             this.economyManager = new EconomyManager(this);
         } else {
-            Bukkit.getLogger().log(Level.WARNING, "No Vault connection found for Kingdoms. Economy support will " +
-                    "be disabled, claims will be free.");
+            Bukkit.getLogger().log(Level.WARNING,
+                    "No Vault connection found for Kingdoms. Economy support " +
+                            "will be disabled, claims will be free.");
         }
     }
 

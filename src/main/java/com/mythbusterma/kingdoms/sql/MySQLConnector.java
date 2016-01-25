@@ -265,8 +265,12 @@ public class MySQLConnector {
         dataSource.close();
     }
 
-    /*
-
+    /**
+     * Attempts to load a player's information from SQL. If no player
+     * information is found (e.g. the player is new or their information was
+     * deleted) the player data will be generated with default values.
+     *
+     * Returns null if there is an SQL error.
      */
     @NotNull
     public KingdomPlayer loadPlayer(UUID id, String name) {

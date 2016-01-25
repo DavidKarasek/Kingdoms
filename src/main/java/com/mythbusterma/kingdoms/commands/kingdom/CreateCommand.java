@@ -9,6 +9,9 @@ import org.bukkit.entity.Player;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Used by players to create a new village
+ */
 public class CreateCommand implements PlayerCommand {
 
     private final KingdomCommandManager parent;

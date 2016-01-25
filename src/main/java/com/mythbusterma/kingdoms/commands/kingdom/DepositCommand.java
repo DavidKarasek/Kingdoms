@@ -16,7 +16,8 @@ public class DepositCommand implements PlayerCommand {
 
     @Override
     public CommandResult issue(Player player, String[] args) {
-        Village village = parent.getVillage(player);
+        Village village = parent.getParent().getKingdomsManager()
+                .getPlayer(player).getVillage();
         if (village != null) {
             double amount = 0;
 

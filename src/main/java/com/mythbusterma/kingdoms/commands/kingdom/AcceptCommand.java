@@ -8,6 +8,9 @@ import org.bukkit.command.CommandSender;
 import java.util.Map;
 import java.util.WeakHashMap;
 
+/**
+ * Used when another command wants to do something that requires confirmation
+ */
 public class AcceptCommand implements KingdomCommand<CommandSender> {
 
     private final KingdomCommandManager parent;

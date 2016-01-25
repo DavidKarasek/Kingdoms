@@ -6,6 +6,9 @@ import com.mythbusterma.kingdoms.commands.CommandResult;
 import com.mythbusterma.kingdoms.commands.PlayerCommand;
 import org.bukkit.entity.Player;
 
+/**
+ * Allows players to claim more chunks for their village
+ */
 public class ClaimCommand implements PlayerCommand {
     private final KingdomCommandManager parent;
 

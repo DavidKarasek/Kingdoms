@@ -30,6 +30,15 @@ public class Village {
     }
 
     /**
+     * Removes this village from the server. Players in the village will be
+     * notified and all chunks will be unclaimed.
+     */
+    public void removeVillage() {
+        Kingdoms kingdoms = Kingdoms.getInstance();
+        kingdoms.getKingdomsManager().deleteVillage(this);
+    }
+
+    /**
      * For use in building a Village for the first time, id field not set 
      * @param name
      */

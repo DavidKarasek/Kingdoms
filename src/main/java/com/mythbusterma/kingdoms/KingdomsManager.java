@@ -1,6 +1,6 @@
 package com.mythbusterma.kingdoms;
 
-import org.bukkit.Bukkit;
+import com.mythbusterma.kingdoms.utils.VillageUtil;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -8,6 +8,9 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Keeps track of all the player wrappers and villages on the server.
+ */
 public class KingdomsManager {
     
     private final Kingdoms parent;
@@ -117,13 +120,29 @@ public class KingdomsManager {
     }
 
     /**
-     * Deletes a village and all of it's blocks from the data set, also removes it from any players that are online 
+     * <p>Deletes a village and all of it's blocks from the data set,
+     * also removes it from any players that are online.
+     *
+     * Note: this method is safe to call even if a village has already been
+     * removed. i.e.</p>
+     *
+     * <code>KingdomsManager manager = ...;<br/>
+     * Village village = ...;<br/>
+     * manager.deleteVillage(village);<br/>
+     * manager.deleteVillage(village);</code>
+     *
+     * <p>will not produce any errors.</p>
      * @param village
      */
     public void deleteVillage (Village village) {
+        VillageUtil.messageVillage(village, Kingdoms.PREFIX + "   ==== NOTE " +
+                "====");
+        VillageUtil.messageVillage(village, Kingdoms.PREFIX + "Your village " +
+                "has been removed.");
         removeBlocks(village);
         clearPlayers(village);
         villages.remove(village.getId());
+        parent.getMySqlConnector().deleteVillage(village.getId());
     }
 
     private void clearPlayers(Village village) {

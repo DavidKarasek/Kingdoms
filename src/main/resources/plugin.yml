@@ -11,18 +11,29 @@ commands:
     aliases: [kingdomadmin, ka, ruler]
   kingdoms:
     aliases: [k]
-    
+  lord:
+    aliases: [l]
+
 permissions:
   kingdoms.king.*:
     children:
       kingdoms.king.ignite: true
       kingdoms.king.build: true
       kingdoms.king.enter: true
+      kingdoms.king.delete: true
+      kingdoms.king.add: true
+      kingdoms.king.remove: true
   kingdoms.king.build:
     default: op
   kingdoms.king.ignite:
     default: op
   kingdoms.king.enter:
+    default: op
+  kingdoms.king.delete:
+    default: op
+  kingdoms.king.add:
+    default: op
+  kingdoms.king.remove:
     default: op
   kingdoms.player.*:
     children:

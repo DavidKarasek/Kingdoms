@@ -68,12 +68,7 @@ public class InviteManager {
      */
     public boolean hasRequest (Player player, Village village) {
         KingdomPlayer kingdomPlayer = parent.getKingdomsManager().getPlayer(player);
-        if (requests.get(kingdomPlayer) != null) {
-            return requests.get(kingdomPlayer).equals(village);
-        }
-        else {
-            return false;
-        }
+        return village.equals(requests.get(kingdomPlayer));
     }
 
     public boolean hasRequest(Player player) {

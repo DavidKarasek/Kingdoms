@@ -70,7 +70,8 @@ public class JoinCommand implements PlayerCommand {
         final InviteManager inviteManager = parent.getParent()
                 .getInviteManager();
         if (inviteManager.hasInvite(exactMatch, player)) {
-            parent.getPlayer(player).setVillage(exactMatch);
+            parent.getParent().getKingdomsManager().getPlayer(player).setVillage
+                    (exactMatch);
             player.sendMessage(Kingdoms.PREFIX + "You are now a part " +
                     "of " + exactMatch.getName());
             VillageUtil.messageVillage(exactMatch,
