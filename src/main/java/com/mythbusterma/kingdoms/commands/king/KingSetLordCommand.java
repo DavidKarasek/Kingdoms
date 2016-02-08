@@ -4,6 +4,9 @@ import com.mythbusterma.kingdoms.commands.CommandResult;
 import com.mythbusterma.kingdoms.commands.KingdomCommand;
 import org.bukkit.command.CommandSender;
 
+/**
+ * Used for admins to change who the lord of a village is
+ */
 public class KingSetLordCommand implements KingdomCommand<CommandSender> {
 
     private final KingCommandHandler parent;
@@ -14,6 +17,7 @@ public class KingSetLordCommand implements KingdomCommand<CommandSender> {
 
     @Override
     public CommandResult issue(CommandSender issuer, String[] args) {
+
         return null;
     }
 }

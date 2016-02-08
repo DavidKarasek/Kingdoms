@@ -23,6 +23,9 @@ permissions:
       kingdoms.king.delete: true
       kingdoms.king.add: true
       kingdoms.king.remove: true
+      kingdoms.king.setlord: true
+  kingdoms.king.setlord:
+    default: op
   kingdoms.king.build:
     default: op
   kingdoms.king.ignite:

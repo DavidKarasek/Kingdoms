@@ -69,7 +69,8 @@ public class JoinCommand implements PlayerCommand {
     private void attemptJoin(Player player, Village exactMatch) {
         final InviteManager inviteManager = parent.getParent()
                 .getInviteManager();
-        if (inviteManager.hasInvite(exactMatch, player)) {
+        if (inviteManager.hasInvite(exactMatch, player)
+                || exactMatch.isOpen()) {
             parent.getParent().getKingdomsManager().getPlayer(player).setVillage
                     (exactMatch);
             player.sendMessage(Kingdoms.PREFIX + "You are now a part " +
@@ -78,7 +79,8 @@ public class JoinCommand implements PlayerCommand {
                     Kingdoms.PREFIX + PlayerUtil.shownName(player) +
                             " is now part of your village.");
             inviteManager.removeInvite(exactMatch, player);
-        } else {
+        }
+        else {
             player.sendMessage(Kingdoms.PREFIX + "Sending a request to " +
                     "the lord of " + exactMatch.getName() + " to join " +
                     "their village.");

@@ -7,7 +7,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 public class Village {
-    //private Set<UUID> lords;
 
     private volatile int id;
     private final VillagePermissions permissions;

@@ -28,5 +28,8 @@ public class KingCommandHandler extends BaseCommandExecutor {
 
         registerSubcommand(new KingAddCommand(this),
                 "kingdoms.king.add", 2, "add", "forceadd", "a", "put");
+
+        registerSubcommand(new KingSetLordCommand(this),
+                "kingdoms.king.setlord", 2, "setlord");
     }
 }
